@@ -11,6 +11,7 @@ import renameFile from './rn.js';
 import copyFile from './cp.js';
 import moveFile from './mv.js';
 import removeFile from './rm.js';
+import hash from './hash.js';
 import { EOL, cpus, homedir, userInfo, arch } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -109,6 +110,14 @@ rl.on('line', (input) => {
         break;
       }
     }
+  }
+
+  if (input.startsWith('hash ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(5).match(argsRegex);
+    const fileToHash = args[0];
+
+    console.log(hash(fileToHash));
   }
 
   switch (input) {
