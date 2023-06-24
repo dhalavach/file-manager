@@ -7,7 +7,7 @@ const read = async (fileURL) => {
     const input = createReadStream(fileURL);
     const output = process.stdout;
     await pipeline(input, output);
-    input.destroy()
+    input.destroy();
   } catch (err) {
     console.log(err);
     throw new Error('FS operation failed');

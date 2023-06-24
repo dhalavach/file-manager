@@ -8,6 +8,10 @@ import { stdin as input, stdout as output } from 'node:process';
 import list from './list.js';
 import read from './cat.js';
 import renameFile from './rn.js';
+import copyFile from './cp.js';
+import moveFile from './mv.js';
+import removeFile from './rm.js';
+import { EOL, cpus, homedir, userInfo, arch } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,6 +55,60 @@ rl.on('line', (input) => {
     renameFile(filePath, newFileName);
 
     //console.log(filePath, newFileName);
+  }
+
+  if (input.startsWith('cp ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(3).match(argsRegex);
+    const oldFilePath = args[0];
+    const newFilePath = args[1];
+    copyFile(oldFilePath, newFilePath);
+
+    //console.log(filePath, newFileName);
+  }
+
+  if (input.startsWith('mv ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(3).match(argsRegex);
+    const oldFilePath = args[0];
+    const newFilePath = args[1];
+    moveFile(oldFilePath, newFilePath);
+  }
+
+  if (input.startsWith('rm ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(3).match(argsRegex);
+    const filePath = args[0];
+    removeFile(filePath);
+  }
+
+  if (input.startsWith('os ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(3).match(argsRegex);
+    const arg = args[0].toLowerCase();
+
+    switch (arg) {
+      case '--eol': {
+        console.log(EOL);
+        break;
+      }
+      case '--cpus': {
+        console.log(cpus());
+        break;
+      }
+      case '--homedir': {
+        console.log(homedir());
+        break;
+      }
+      case '--username': {
+        console.log(userInfo().username);
+        break;
+      }
+      case '--architecture': {
+        console.log(arch());
+        break;
+      }
+    }
   }
 
   switch (input) {
