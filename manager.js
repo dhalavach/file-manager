@@ -1,10 +1,13 @@
 import path from 'path';
+
 import { join, extname, basename } from 'path';
-import { readdir, stat } from 'fs/promises';
+import { readdir, stat, writeFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import list from './list.js';
+import read from './cat.js';
+import renameFile from './rn.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +29,30 @@ rl.on('line', (input) => {
       console.log('chdir: ' + err);
     }
   }
+
+  if (input.startsWith('cat ')) {
+    let fileToRead = input.slice(4);
+    read(path.join(currentDir, fileToRead));
+  }
+
+  if (input.startsWith('add ')) {
+    let newFileName = input.slice(4);
+    writeFile(newFileName, '', (err) => {
+      console.log(err);
+      throw new Error('FS operation failed');
+    });
+  }
+
+  if (input.startsWith('rn ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(3).match(argsRegex);
+    const filePath = args[0];
+    const newFileName = args[1];
+    renameFile(filePath, newFileName);
+
+    //console.log(filePath, newFileName);
+  }
+
   switch (input) {
     case 'up': {
       try {

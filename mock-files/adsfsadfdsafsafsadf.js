@@ -1,0 +1,1 @@
+The file is to be read using cat command 
