@@ -37,13 +37,17 @@ rl.on('line', (input) => {
 
         console.log('New directory: ' + process.cwd());
       } catch (err) {
-        console.log('chdir: ' + err);
+        console.log(MESSAGES.failure + EOL, err);
       }
     }
 
     if (input.startsWith('cat ')) {
-      const fileToRead = input.slice(4);
-      read(fileToRead, currentDir);
+      try {
+        const fileToRead = input.slice(4);
+        read(fileToRead, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('add ')) {
@@ -56,13 +60,15 @@ rl.on('line', (input) => {
     }
 
     if (input.startsWith('rn ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(3).match(argsRegex);
-      const filePath = args[0];
-      const newFileName = args[1];
-      renameFile(filePath, newFileName, currentDir);
-
-      //console.log(filePath, newFileName);
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(3).match(argsRegex);
+        const filePath = args[0];
+        const newFileName = args[1];
+        renameFile(filePath, newFileName, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('cp ')) {
@@ -92,10 +98,14 @@ rl.on('line', (input) => {
     }
 
     if (input.startsWith('rm ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(3).match(argsRegex);
-      const filePath = args[0];
-      removeFile(filePath, currentDir);
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(3).match(argsRegex);
+        const filePath = args[0];
+        removeFile(filePath, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('os ')) {
@@ -110,27 +120,39 @@ rl.on('line', (input) => {
     }
 
     if (input.startsWith('hash ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(5).match(argsRegex);
-      const fileToHash = args[0];
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(5).match(argsRegex);
+        const fileToHash = args[0];
 
-      console.log(hash(fileToHash, currentDir));
+        console.log(hash(fileToHash, currentDir));
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('compress ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(9).match(argsRegex);
-      const filePath = args[0];
-      const destination = args[1] || null;
-      compress(filePath, destination, currentDir);
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(9).match(argsRegex);
+        const filePath = args[0];
+        const destination = args[1] || null;
+        compress(filePath, destination, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('decompress ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(11).match(argsRegex);
-      const filePath = args[0];
-      const destination = args[1] || null;
-      decompress(filePath, destination, currentDir);
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(11).match(argsRegex);
+        const filePath = args[0];
+        const destination = args[1] || null;
+        decompress(filePath, destination, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     switch (input) {
@@ -146,7 +168,11 @@ rl.on('line', (input) => {
       }
 
       case 'ls': {
-        list(currentDir);
+        try {
+          list(currentDir);
+        } catch (err) {
+          console.log(MESSAGES.failure + EOL, err);
+        }
         break;
       }
     }
@@ -155,24 +181,24 @@ rl.on('line', (input) => {
   }
 });
 
-// read username from the CLI arguments and print the greeting to the console
+// read username from the CLI arguments and print the greeting and farewell to the console
 
 const parseUsername = async () => {
-  for (let arg of process.argv) {
-    if (arg.startsWith('--username')) {
-      return arg.slice(11); // the length of '--username=' string
+  try {
+    for (let arg of process.argv) {
+      if (arg.startsWith('--username')) {
+        return arg.slice(11); // the length of '--username=' string
+      }
     }
+  } catch (err) {
+    console.log(err);
   }
   return undefined;
 };
+
 const username = await parseUsername();
 console.log(`Welcome to the File Manager${username ? ', ' + username : ''}!`);
-
-//print the working directory to the console
-
 console.log(`you are currently in ${currentDir}`);
-
-//pring farewell message to the console on exit
 process.on('exit', () => {
   console.log(
     `Thank you for using File Manager, ${
@@ -180,6 +206,3 @@ process.on('exit', () => {
     }goodbye!`
   );
 });
-
-// const manager = new Manager(os.homedir());
-// manager.start();
