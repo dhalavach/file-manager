@@ -6,6 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const list = async (folderPath) => {
+  function truncate(str, n) {
+    return str.length > n ? str.slice(0, n - 1) + '...' : str;
+  }
+
   try {
     const files = await readdir(folderPath, { withFileTypes: true });
 
@@ -13,7 +17,7 @@ const list = async (folderPath) => {
       files.map(async (file) => {
         if (!file.isFile()) {
           const directoryPath = join(folderPath, file.name);
-          const dirName = basename(directoryPath);
+          const dirName = truncate(basename(directoryPath), 40);
 
           return {
             type: 'directory',
@@ -31,7 +35,7 @@ const list = async (folderPath) => {
           const filePath = join(folderPath, file.name);
           const fileExt = extname(file.name);
           const fileStats = await stat(filePath);
-          const fileName = basename(filePath, fileExt);
+          const fileName = truncate(basename(filePath, fileExt), 40);
           const fileSize = fileStats.size;
           const formattedExt = fileExt.slice(1);
           const formattedSize = (fileSize / 1024).toFixed(2) + 'Kb';
@@ -54,7 +58,6 @@ const list = async (folderPath) => {
     // console.table(fileInfo.filter(Boolean));
   } catch (err) {
     console.log(err);
-    throw new Error('Reading folder info operation failed');
   }
 };
 

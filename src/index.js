@@ -1,22 +1,29 @@
 import path from 'path';
-
+import EventEmitter from 'events';
 import { join, extname, basename } from 'path';
 import { readdir, stat, writeFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import list from './list.js';
-import read from './cat.js';
-import renameFile from './rn.js';
-import copyFile from './cp.js';
-import moveFile from './mv.js';
-import removeFile from './rm.js';
-import hash from './hash.js';
+import list from './commands/list.js';
+import read from './commands/cat.js';
+import renameFile from './commands/rn.js';
+import copyFile from './commands/cp.js';
+import moveFile from './commands/mv.js';
+import removeFile from './commands/rm.js';
+import hash from './commands/hash.js';
+import compress from './commands/compress.js';
+import decompress from './commands/decompress.js';
 import { EOL, cpus, homedir, userInfo, arch } from 'os';
+import Manager from './manager.js';
+import { MESSAGES } from './messages.js';
+
+// const eventEmitter = new EventEmitter({ captureRejections: true });
+// eventEmitter.on('error', (e) => console.log('Error caught:', e.message));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-let currentDir = __dirname;
+let currentDir = homedir();
 
 // create readline interface
 const rl = readline.createInterface({ input, output });
@@ -27,7 +34,7 @@ rl.on('line', (input) => {
     let newDir = input.slice(3);
     try {
       process.chdir(path.join(currentDir, newDir));
-      currentDir = path.join(__dirname, newDir);
+      currentDir = path.join(currentDir, newDir);
 
       console.log('New directory: ' + process.cwd());
     } catch (err) {
@@ -36,15 +43,19 @@ rl.on('line', (input) => {
   }
 
   if (input.startsWith('cat ')) {
-    let fileToRead = input.slice(4);
-    read(path.join(currentDir, fileToRead));
+    const fileToRead = input.slice(4);
+    try {
+      read(path.join(currentDir, fileToRead));
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   if (input.startsWith('add ')) {
     let newFileName = input.slice(4);
-    writeFile(newFileName, '', (err) => {
+    writeFile(path.join(currentDir, newFileName), '', (err) => {
+      console.log(MESSAGES.failure);
       console.log(err);
-      throw new Error('FS operation failed');
     });
   }
 
@@ -80,7 +91,7 @@ rl.on('line', (input) => {
     const argsRegex = new RegExp(/[^\s]+/gi);
     const args = input.slice(3).match(argsRegex);
     const filePath = args[0];
-    removeFile(filePath);
+    removeFile(filePath, currentDir);
   }
 
   if (input.startsWith('os ')) {
@@ -120,6 +131,22 @@ rl.on('line', (input) => {
     console.log(hash(fileToHash));
   }
 
+  if (input.startsWith('compress ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(9).match(argsRegex);
+    const filePath = args[0];
+    const destination = args[1] || null;
+    compress(filePath, destination, currentDir);
+  }
+
+  if (input.startsWith('decompress ')) {
+    const argsRegex = new RegExp(/[^\s]+/gi);
+    const args = input.slice(11).match(argsRegex);
+    const filePath = args[0];
+    const destination = args[1] || null;
+    decompress(filePath, destination, currentDir);
+  }
+
   switch (input) {
     case 'up': {
       try {
@@ -131,14 +158,14 @@ rl.on('line', (input) => {
     }
 
     case 'ls': {
-      list(process.cwd());
+      list(currentDir);
     }
   }
 });
 
 // read username from the CLI arguments and print the greeting to the console
 
-const parseUsername = () => {
+const parseUsername = async () => {
   for (let arg of process.argv) {
     if (arg.startsWith('--username')) {
       return arg.slice(11); // the length of '--username=' string
@@ -146,13 +173,12 @@ const parseUsername = () => {
   }
   return undefined;
 };
-const username = parseUsername();
+const username = await parseUsername();
 console.log(`Welcome to the File Manager${username ? ', ' + username : ''}!`);
 
 //print the working directory to the console
 
-// console.log(`you are currently in ${process.argv[1]}`);
-console.log(`you are currently in ${__dirname}`);
+console.log(`you are currently in ${currentDir}`);
 
 //pring farewell message to the console on exit
 process.on('exit', () => {
@@ -162,3 +188,6 @@ process.on('exit', () => {
     }goodbye!`
   );
 });
+
+// const manager = new Manager(os.homedir());
+// manager.start();

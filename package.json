@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node manager.js"
+    "start": "node src/index.js",
+    "start:name": "node src/index.js --username=user"
   },
   "keywords": [],
   "author": "",
