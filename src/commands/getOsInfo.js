@@ -7,7 +7,13 @@ const getOsInfo = (arg) => {
       break;
     }
     case '--cpus': {
-      console.log(cpus());
+      const numberOfCpuThreads = cpus().length;
+      const formattedCpuInfo = cpus().map((cpu) => ({
+        Model: cpu.model.trim(),
+        Clock_Rate: `${cpu.speed / 1000} Ghz`,
+      }));
+      console.log(`Overall number of CPUs (threads): ${numberOfCpuThreads}`);
+      console.table(formattedCpuInfo);
       break;
     }
     case '--homedir': {

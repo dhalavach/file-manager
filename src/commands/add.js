@@ -9,10 +9,10 @@ const add = async (pathArg, currentDir) => {
       ? pathArg
       : resolve(currentDir, pathArg);
 
-    await writeFile(filePath, '', (err) => {
+    await writeFile(filePath, '', { flag: 'wx' }, (err) => {
       if (err) console.log(MESSAGES.failure + EOL, err);
-      else console.log(MESSAGES.success);
     });
+    console.log(MESSAGES.success);
   } catch (err) {
     console.log(MESSAGES.failure + EOL, err);
   }

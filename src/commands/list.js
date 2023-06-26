@@ -2,17 +2,14 @@ import path from 'path';
 import { join, extname, basename } from 'path';
 import { readdir, stat } from 'fs/promises';
 import { fileURLToPath } from 'url';
+import { truncate } from '../helpers.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const list = async (folderPath) => {
-  function truncate(str, n) {
-    return str.length > n ? str.slice(0, n - 1) + '...' : str;
-  }
-
   try {
     const files = await readdir(folderPath, { withFileTypes: true });
-
     const directoryInfo = await Promise.all(
       files.map(async (file) => {
         if (!file.isFile()) {
@@ -54,8 +51,6 @@ const list = async (folderPath) => {
 
     let info = [...directoryInfo, ...fileInfo].filter(Boolean);
     console.table(info);
-    // console.table(directoryInfo.filter(Boolean));
-    // console.table(fileInfo.filter(Boolean));
   } catch (err) {
     console.log(err);
   }

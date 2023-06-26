@@ -8,7 +8,7 @@ const read = async (pathArg, currentDir) => {
     const filePath = isAbsolute(pathArg)
       ? pathArg
       : resolve(currentDir, pathArg);
-    const input = createReadStream(filePath);
+    const input = createReadStream(filePath, 'utf-8');
     input.on('error', (err) => console.log(MESSAGES.failure + EOL, err));
     input.pipe(process.stdout);
   } catch (err) {

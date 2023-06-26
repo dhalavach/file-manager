@@ -7,9 +7,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
-    "start:name": "node src/index.js --username=user"
+    "start:name": "node src/index.js --username=user_with_a_name"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "Dmitry Halavach",
+  "license": "MIT"
 }
