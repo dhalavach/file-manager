@@ -1,18 +1,27 @@
 import { pipeline } from 'stream/promises';
 import { createReadStream, createWriteStream } from 'fs';
-import path from 'path';
+import { resolve, isAbsolute, basename, join } from 'path';
 import { rm } from 'fs/promises';
+import { MESSAGES } from '../messages.js';
+import { EOL } from 'os';
 
-const move = async (from, to) => {
+const move = async (fromArg, toArg, currentDir) => {
   try {
-    const fileName = path.basename(from);
-    const rs = createReadStream(from);
-    const ws = createWriteStream(path.join(to, fileName));
+    const sourcePath = isAbsolute(fromArg)
+      ? fromArg
+      : resolve(currentDir, fromArg);
+
+    const destinationPath = isAbsolute(toArg)
+      ? join(toArg, basename(sourcePath))
+      : join(resolve(currentDir, toArg), basename(sourcePath));
+
+    const rs = createReadStream(sourcePath);
+    const ws = createWriteStream(destinationPath);
     await pipeline(rs, ws);
-    await rm(from);
+    await rm(sourcePath);
+    console.log(MESSAGES.success);
   } catch (err) {
-    console.log(err);
-    throw new Error('FS operation failed');
+    console.log(MESSAGES.failure + EOL, err);
   }
 };
 

@@ -5,6 +5,7 @@ import { readdir, stat, writeFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
+import add from './commands/add.js';
 import list from './commands/list.js';
 import read from './commands/cat.js';
 import renameFile from './commands/rn.js';
@@ -46,19 +47,16 @@ rl.on('line', (input) => {
 
     if (input.startsWith('cat ')) {
       const fileToRead = input.slice(4);
-      try {
-        read(path.join(currentDir, fileToRead));
-      } catch (err) {
-        console.log(err);
-      }
+      read(fileToRead, currentDir);
     }
 
     if (input.startsWith('add ')) {
-      let newFileName = input.slice(4);
-      writeFile(path.join(currentDir, newFileName), '', (err) => {
-        console.log(MESSAGES.failure);
-        console.log(err);
-      });
+      try {
+        const newFileName = input.slice(4);
+        add(newFileName, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('rn ')) {
@@ -72,21 +70,29 @@ rl.on('line', (input) => {
     }
 
     if (input.startsWith('cp ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(3).match(argsRegex);
-      const oldFilePath = args[0];
-      const newFilePath = args[1];
-      copyFile(oldFilePath, newFilePath);
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(3).match(argsRegex);
+        const fromArg = args[0];
+        const toArg = args[1];
+        copyFile(fromArg, toArg, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
 
       //console.log(filePath, newFileName);
     }
 
     if (input.startsWith('mv ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(3).match(argsRegex);
-      const oldFilePath = args[0];
-      const newFilePath = args[1];
-      moveFile(oldFilePath, newFilePath);
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(3).match(argsRegex);
+        const fromArg = args[0];
+        const toArg = args[1];
+        moveFile(fromArg, toArg, currentDir);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
+      }
     }
 
     if (input.startsWith('rm ')) {
@@ -130,7 +136,7 @@ rl.on('line', (input) => {
       const args = input.slice(5).match(argsRegex);
       const fileToHash = args[0];
 
-      console.log(hash(fileToHash));
+      console.log(hash(fileToHash, currentDir));
     }
 
     if (input.startsWith('compress ')) {
@@ -153,21 +159,22 @@ rl.on('line', (input) => {
       case 'up': {
         try {
           process.chdir('..');
+          currentDir = process.cwd();
           console.log('New directory: ' + process.cwd());
         } catch (err) {
           console.log('chdir: ' + err);
         }
+        break;
       }
 
       case 'ls': {
         list(currentDir);
+        break;
       }
     }
   } else {
-  console.log(MESSAGES.invalidInput)
+    console.log(MESSAGES.invalidInput);
   }
-
-  
 });
 
 // read username from the CLI arguments and print the greeting to the console

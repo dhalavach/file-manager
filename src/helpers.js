@@ -1,10 +1,12 @@
 export const validate = (input) => {
   const commandRegex = new RegExp(/[^\s]+/i);
-  const command = input.match(commandRegex)[0];
+  const command = input.match(commandRegex)?.[0];
   const validCommands = new Set([
+    'add',
     'cat',
     'compress',
     'decompress',
+    'cd',
     'cp',
     'hash',
     'ls',
@@ -12,6 +14,7 @@ export const validate = (input) => {
     'os',
     'rm',
     'rn',
+    'up',
   ]);
 
   if (validCommands.has(command)) return true;

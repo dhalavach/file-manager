@@ -1,19 +1,21 @@
-import { createReadStream } from 'fs';
+import { writeFile } from 'fs/promises';
 import { resolve, isAbsolute } from 'path';
 import { MESSAGES } from '../messages.js';
 import { EOL } from 'os';
 
-const read = async (pathArg, currentDir) => {
+const add = async (pathArg, currentDir) => {
   try {
     const filePath = isAbsolute(pathArg)
       ? pathArg
       : resolve(currentDir, pathArg);
-    const input = createReadStream(filePath);
-    input.on('error', (err) => console.log(MESSAGES.failure + EOL, err));
-    input.pipe(process.stdout);
+
+    await writeFile(filePath, '', (err) => {
+      if (err) console.log(MESSAGES.failure + EOL, err);
+      else console.log(MESSAGES.success);
+    });
   } catch (err) {
     console.log(MESSAGES.failure + EOL, err);
   }
 };
 
-export default read;
+export default add;
