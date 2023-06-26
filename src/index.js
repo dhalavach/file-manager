@@ -17,7 +17,7 @@ import decompress from './commands/decompress.js';
 import { EOL, cpus, homedir, userInfo, arch } from 'os';
 import Manager from './manager.js';
 import { MESSAGES } from './messages.js';
-
+import { validate } from './helpers.js';
 // const eventEmitter = new EventEmitter({ captureRejections: true });
 // eventEmitter.on('error', (e) => console.log('Error caught:', e.message));
 
@@ -29,138 +29,145 @@ let currentDir = homedir();
 const rl = readline.createInterface({ input, output });
 
 rl.on('line', (input) => {
-  //console.log(`Received: ${input}`);
-  if (input.startsWith('cd ')) {
-    let newDir = input.slice(3);
-    try {
-      process.chdir(path.join(currentDir, newDir));
-      currentDir = path.join(currentDir, newDir);
+  if (validate(input)) {
+    //console.log(`Received: ${input}`);
 
-      console.log('New directory: ' + process.cwd());
-    } catch (err) {
-      console.log('chdir: ' + err);
-    }
-  }
-
-  if (input.startsWith('cat ')) {
-    const fileToRead = input.slice(4);
-    try {
-      read(path.join(currentDir, fileToRead));
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  if (input.startsWith('add ')) {
-    let newFileName = input.slice(4);
-    writeFile(path.join(currentDir, newFileName), '', (err) => {
-      console.log(MESSAGES.failure);
-      console.log(err);
-    });
-  }
-
-  if (input.startsWith('rn ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(3).match(argsRegex);
-    const filePath = args[0];
-    const newFileName = args[1];
-    renameFile(filePath, newFileName);
-
-    //console.log(filePath, newFileName);
-  }
-
-  if (input.startsWith('cp ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(3).match(argsRegex);
-    const oldFilePath = args[0];
-    const newFilePath = args[1];
-    copyFile(oldFilePath, newFilePath);
-
-    //console.log(filePath, newFileName);
-  }
-
-  if (input.startsWith('mv ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(3).match(argsRegex);
-    const oldFilePath = args[0];
-    const newFilePath = args[1];
-    moveFile(oldFilePath, newFilePath);
-  }
-
-  if (input.startsWith('rm ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(3).match(argsRegex);
-    const filePath = args[0];
-    removeFile(filePath, currentDir);
-  }
-
-  if (input.startsWith('os ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(3).match(argsRegex);
-    const arg = args[0].toLowerCase();
-
-    switch (arg) {
-      case '--eol': {
-        console.log(EOL);
-        break;
-      }
-      case '--cpus': {
-        console.log(cpus());
-        break;
-      }
-      case '--homedir': {
-        console.log(homedir());
-        break;
-      }
-      case '--username': {
-        console.log(userInfo().username);
-        break;
-      }
-      case '--architecture': {
-        console.log(arch());
-        break;
-      }
-    }
-  }
-
-  if (input.startsWith('hash ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(5).match(argsRegex);
-    const fileToHash = args[0];
-
-    console.log(hash(fileToHash));
-  }
-
-  if (input.startsWith('compress ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(9).match(argsRegex);
-    const filePath = args[0];
-    const destination = args[1] || null;
-    compress(filePath, destination, currentDir);
-  }
-
-  if (input.startsWith('decompress ')) {
-    const argsRegex = new RegExp(/[^\s]+/gi);
-    const args = input.slice(11).match(argsRegex);
-    const filePath = args[0];
-    const destination = args[1] || null;
-    decompress(filePath, destination, currentDir);
-  }
-
-  switch (input) {
-    case 'up': {
+    if (input.startsWith('cd ')) {
+      let newDir = input.slice(3);
       try {
-        process.chdir('..');
+        process.chdir(path.join(currentDir, newDir));
+        currentDir = path.join(currentDir, newDir);
+
         console.log('New directory: ' + process.cwd());
       } catch (err) {
         console.log('chdir: ' + err);
       }
     }
 
-    case 'ls': {
-      list(currentDir);
+    if (input.startsWith('cat ')) {
+      const fileToRead = input.slice(4);
+      try {
+        read(path.join(currentDir, fileToRead));
+      } catch (err) {
+        console.log(err);
+      }
     }
+
+    if (input.startsWith('add ')) {
+      let newFileName = input.slice(4);
+      writeFile(path.join(currentDir, newFileName), '', (err) => {
+        console.log(MESSAGES.failure);
+        console.log(err);
+      });
+    }
+
+    if (input.startsWith('rn ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(3).match(argsRegex);
+      const filePath = args[0];
+      const newFileName = args[1];
+      renameFile(filePath, newFileName);
+
+      //console.log(filePath, newFileName);
+    }
+
+    if (input.startsWith('cp ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(3).match(argsRegex);
+      const oldFilePath = args[0];
+      const newFilePath = args[1];
+      copyFile(oldFilePath, newFilePath);
+
+      //console.log(filePath, newFileName);
+    }
+
+    if (input.startsWith('mv ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(3).match(argsRegex);
+      const oldFilePath = args[0];
+      const newFilePath = args[1];
+      moveFile(oldFilePath, newFilePath);
+    }
+
+    if (input.startsWith('rm ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(3).match(argsRegex);
+      const filePath = args[0];
+      removeFile(filePath, currentDir);
+    }
+
+    if (input.startsWith('os ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(3).match(argsRegex);
+      const arg = args[0].toLowerCase();
+
+      switch (arg) {
+        case '--eol': {
+          console.log(EOL);
+          break;
+        }
+        case '--cpus': {
+          console.log(cpus());
+          break;
+        }
+        case '--homedir': {
+          console.log(homedir());
+          break;
+        }
+        case '--username': {
+          console.log(userInfo().username);
+          break;
+        }
+        case '--architecture': {
+          console.log(arch());
+          break;
+        }
+      }
+    }
+
+    if (input.startsWith('hash ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(5).match(argsRegex);
+      const fileToHash = args[0];
+
+      console.log(hash(fileToHash));
+    }
+
+    if (input.startsWith('compress ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(9).match(argsRegex);
+      const filePath = args[0];
+      const destination = args[1] || null;
+      compress(filePath, destination, currentDir);
+    }
+
+    if (input.startsWith('decompress ')) {
+      const argsRegex = new RegExp(/[^\s]+/gi);
+      const args = input.slice(11).match(argsRegex);
+      const filePath = args[0];
+      const destination = args[1] || null;
+      decompress(filePath, destination, currentDir);
+    }
+
+    switch (input) {
+      case 'up': {
+        try {
+          process.chdir('..');
+          console.log('New directory: ' + process.cwd());
+        } catch (err) {
+          console.log('chdir: ' + err);
+        }
+      }
+
+      case 'ls': {
+        list(currentDir);
+      }
+    }
+  } else {
+  console.log(MESSAGES.invalidInput)
   }
+
+  
 });
 
 // read username from the CLI arguments and print the greeting to the console
