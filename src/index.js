@@ -1,6 +1,6 @@
 import path from 'path';
 import EventEmitter from 'events';
-import { join, extname, basename } from 'path';
+import { join, extname, basename, resolve } from 'path';
 import { readdir, stat, writeFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import * as readline from 'node:readline/promises';
@@ -19,8 +19,6 @@ import { EOL, cpus, homedir, userInfo, arch } from 'os';
 import Manager from './manager.js';
 import { MESSAGES } from './messages.js';
 import { validate } from './helpers.js';
-// const eventEmitter = new EventEmitter({ captureRejections: true });
-// eventEmitter.on('error', (e) => console.log('Error caught:', e.message));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,7 +62,7 @@ rl.on('line', (input) => {
       const args = input.slice(3).match(argsRegex);
       const filePath = args[0];
       const newFileName = args[1];
-      renameFile(filePath, newFileName);
+      renameFile(filePath, newFileName, currentDir);
 
       //console.log(filePath, newFileName);
     }
@@ -158,11 +156,11 @@ rl.on('line', (input) => {
     switch (input) {
       case 'up': {
         try {
-          process.chdir('..');
+          process.chdir(resolve(currentDir, '..'));
           currentDir = process.cwd();
           console.log('New directory: ' + process.cwd());
         } catch (err) {
-          console.log('chdir: ' + err);
+          console.log(MESSAGES.failure + EOL, err);
         }
         break;
       }
