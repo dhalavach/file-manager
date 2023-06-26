@@ -1,7 +1,5 @@
 import path from 'path';
-import EventEmitter from 'events';
-import { join, extname, basename, resolve } from 'path';
-import { readdir, stat, writeFile } from 'fs/promises';
+import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
@@ -15,8 +13,8 @@ import removeFile from './commands/rm.js';
 import hash from './commands/hash.js';
 import compress from './commands/compress.js';
 import decompress from './commands/decompress.js';
-import { EOL, cpus, homedir, userInfo, arch } from 'os';
-import Manager from './manager.js';
+import getOsInfo from './commands/getOsInfo.js';
+import { EOL, homedir } from 'os';
 import { MESSAGES } from './messages.js';
 import { validate } from './helpers.js';
 
@@ -101,31 +99,13 @@ rl.on('line', (input) => {
     }
 
     if (input.startsWith('os ')) {
-      const argsRegex = new RegExp(/[^\s]+/gi);
-      const args = input.slice(3).match(argsRegex);
-      const arg = args[0].toLowerCase();
-
-      switch (arg) {
-        case '--eol': {
-          console.log(EOL);
-          break;
-        }
-        case '--cpus': {
-          console.log(cpus());
-          break;
-        }
-        case '--homedir': {
-          console.log(homedir());
-          break;
-        }
-        case '--username': {
-          console.log(userInfo().username);
-          break;
-        }
-        case '--architecture': {
-          console.log(arch());
-          break;
-        }
+      try {
+        const argsRegex = new RegExp(/[^\s]+/gi);
+        const args = input.slice(3).match(argsRegex);
+        const arg = args[0].toLowerCase();
+        getOsInfo(arg);
+      } catch (err) {
+        console.log(MESSAGES.failure + EOL, err);
       }
     }
 
