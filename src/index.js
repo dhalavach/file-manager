@@ -1,5 +1,5 @@
 import path from 'path';
-import { resolve } from 'path';
+import { resolve, isAbsolute } from 'path';
 import { fileURLToPath } from 'url';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
@@ -30,10 +30,13 @@ rl.on('line', (input) => {
     //console.log(`Received: ${input}`);
 
     if (input.startsWith('cd ')) {
-      let newDir = input.slice(3);
+      let newDirArg = input.slice(3);
+      let newDir = isAbsolute(newDirArg)
+        ? newDirArg
+        : resolve(currentDir, newDirArg);
       try {
-        process.chdir(path.join(currentDir, newDir));
-        currentDir = path.join(currentDir, newDir);
+        process.chdir(newDir);
+        currentDir = newDir;
 
         console.log('New directory: ' + process.cwd());
       } catch (err) {
