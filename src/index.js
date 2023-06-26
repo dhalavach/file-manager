@@ -28,6 +28,9 @@ const rl = readline.createInterface({ input, output });
 rl.on('line', (input) => {
   if (validate(input)) {
     //console.log(`Received: ${input}`);
+    if (input.startsWith('.exit')) {
+      process.exit();
+    }
 
     if (input.startsWith('cd ')) {
       let newDirArg = input.slice(3);
@@ -38,7 +41,7 @@ rl.on('line', (input) => {
         process.chdir(newDir);
         currentDir = newDir;
 
-        console.log('New directory: ' + process.cwd());
+        console.log('You are currently in: ' + process.cwd());
       } catch (err) {
         console.log(MESSAGES.failure + EOL, err);
       }
@@ -163,7 +166,7 @@ rl.on('line', (input) => {
         try {
           process.chdir(resolve(currentDir, '..'));
           currentDir = process.cwd();
-          console.log('New directory: ' + process.cwd());
+          console.log('You are currently in: ' + process.cwd());
         } catch (err) {
           console.log(MESSAGES.failure + EOL, err);
         }

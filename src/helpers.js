@@ -15,6 +15,7 @@ export const validate = (input) => {
     'rm',
     'rn',
     'up',
+    '.exit',
   ]);
 
   if (validCommands.has(command)) return true;
