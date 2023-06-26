@@ -5,7 +5,6 @@ import { pipeline } from 'stream';
 import { createHash } from 'crypto';
 import { resolve, isAbsolute } from 'path';
 
-
 // const hash = async (filePath) => {
 //   const rs = createReadStream(filePath);
 //   const calcHash = (file) => {

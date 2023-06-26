@@ -17,25 +17,12 @@ const decompress = async (pathArg, destination, currentDir) => {
           parse(resolve(filePath)).name + '.txt'
         );
 
-    // const brotli = createBrotliDecompress();
-    // const readStream = createReadStream(filePath);
-    // const writeStream = createWriteStream(decompressedFilePath);
-
-    // const stream = readStream.pipe(brotli).pipe(writeStream);
-
-    // stream.on('error', (err) => {
-    //   console.log(MESSAGES.failure + EOL, err);
-    // });
-
-    // stream.on('finish', () => {
-    //   console.log(MESSAGES.success);
-    // });
-
     await pipeline(
       createReadStream(filePath),
       createBrotliDecompress(),
       createWriteStream(decompressedFilePath)
     );
+    console.log(MESSAGES.success + EOL);
   } catch (err) {
     console.log(MESSAGES.failure + EOL, err);
   }
