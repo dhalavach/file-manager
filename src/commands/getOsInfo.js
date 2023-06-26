@@ -17,15 +17,15 @@ const getOsInfo = (arg) => {
       break;
     }
     case '--homedir': {
-      console.log(homedir());
+      console.log(`The home directory is: ${homedir()}`);
       break;
     }
     case '--username': {
-      console.log(userInfo().username);
+      console.log(`The user name is: ${userInfo().username}`);
       break;
     }
     case '--architecture': {
-      console.log(arch());
+      console.log(`The system architecture is: ${arch()}`);
       break;
     }
     default:
